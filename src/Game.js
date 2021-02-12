@@ -1,6 +1,6 @@
-import Board from "./Board"
 import React from 'react';
-import calculateBoard from "./Helper"
+import Board from "./Board";
+import calculateBoard from "./Helper";
 
 class Game extends React.Component {
   constructor(props) {
@@ -10,26 +10,21 @@ class Game extends React.Component {
     this.state = {
       squares: Array(25).fill(null),
       status: "",
-      row_voltorbs: Array(5).fill(0),
-      col_voltorbs: Array(5).fill(0),
-      row_mults: Array(5).fill(0),
-      col_mults: Array(5).fill(0),
       level: 1,
-      voltorbs: 0,
+      nextlevel: 1,
       multipliers: 0,
       score: 0,
       totalscore: 0,
       selectedmults: 0,
-      gameBoard: this.generateBoard(0)
+      gameBoard: this.generateBoard(1)
       
     };
     
   }
   
-
-  
   generateBoard(level) {
     let boardDetails = calculateBoard(level);
+    console.log(boardDetails);
     const calculatedSpaces = new Map();
         
     var calc_row_voltorbs = Array(5).fill(0);
@@ -54,7 +49,7 @@ class Game extends React.Component {
             } else if (i === 1) {
               calculatedSpaces.set(space, 3);
               calc_row_mults[Math.floor(space/5)] += 2;
-              calc_col_mults[space % 5] += 1;
+              calc_col_mults[space % 5] += 2;
               
             } else {
               calculatedSpaces.set(space, 0);
@@ -90,41 +85,111 @@ class Game extends React.Component {
       col_voltorbs: calc_col_voltorbs }
   }
   
+  
+  getSquareValue(i) {
+      if (this.state.gameBoard.spaces.has(i)) {
+        return this.state.gameBoard.spaces.get(i);
+      } else {
+        return 1;
+      }
+    
+  }
+  
+  
   handleClick(i) {
-//    const history = this.state.history.slice(0, this.state.stepNumber + 1);
-//    const current = history[history.length - 1];
-    console.log(this.state.voltorbs);
-
     const calc_squares = this.state.squares;
-//    if (calculateWinner(squares) || squares[i]) {
-//      return;
-//    }
-    var squareValue;
-    if (this.state.gameBoard.spaces.has(i)) {
-      squareValue = this.state.gameBoard.spaces.get(i);
+    var status = this.state.status;
+    const gameBoard = this.state.gameBoard;
+    var selectedmults = this.state.selectedmults;
+    var nextlevel = this.state.level;
+    var score = this.state.score;
+    
+    var squareValue = this.getSquareValue(i);
+    calc_squares[i] = squareValue;
+    console.log(squareValue);
+    console.log(squareValue);
+    
+    if (squareValue === 0) {
+      status = "Game Over"
+      
+      // determine level
+      if (selectedmults < gameBoard.voltorbs) {
+        if (selectedmults === 0) {
+          nextlevel = 1;
+        } else if (selectedmults < nextlevel){
+          nextlevel = selectedmults;
+        }
+      }
     } else {
-      squareValue = 1;
+      selectedmults += 1;
+      
+      if (squareValue > 1) {
+        gameBoard.multipliers -= 1;
+        
+        if (gameBoard.multipliers === 0) {
+          status = "Level Complete";
+          if (nextlevel < 8) {
+            nextlevel += 1;
+          }
+        }
+      }
+      
+      if (score === 0) {
+        score = squareValue;
+      } else {
+        score *= squareValue;
+      }
+         
     }
     
-    calc_squares[i] = squareValue;
+    
+    if (status !== "") {
+      
+      this.setState({
+        totalscore: this.state.totalscore + score,
+      });
+      var square;
+      for (square = 0; square < 25; square++) {
+        calc_squares[square] = this.getSquareValue(square);
+      }
+    } 
     
     this.setState({
       squares: calc_squares,
-//      history: history.concat([
-//        {
-//          squares: squares
-//        }
-//      ]),
-//      stepNumber: history.length,
-//      xIsNext: !this.state.xIsNext
+      nextlevel: nextlevel,
+      score: score,
+      gameBoard: gameBoard,
+      selectedmults: selectedmults,
+      status: status,
+      
     });
-//  }
-//
-//  jumpTo(step) {
-//    this.setState({
-//      stepNumber: step,
-//      xIsNext: (step % 2) === 0
-//    });
+    
+}
+  
+  gameOver() {
+    const status = this.state.status;
+    if (status !== "") {  
+      return (
+      <div>
+        <div>{status}</div>
+        <button onClick={i => this.newGame()}> New Game </button>
+      </div>
+      );
+    } 
+  }
+  
+  newGame() {
+    const gameBoard = this.generateBoard(this.state.nextlevel);
+    
+    this.setState({
+      gameBoard: gameBoard,
+      level: this.state.nextlevel,
+      squares: Array(25).fill(null),
+      status: "",
+      multipliers: 0,
+      score: 0,
+      selectedmults: 0,
+    });
   }
   
   
@@ -133,19 +198,21 @@ class Game extends React.Component {
     const level = this.state.level;
     const score = this.state.score;
     const totalscore = this.state.totalscore;
-    const status = this.state.status;
-    
+        
      return (
       <div className="game">
+       <div className="game-info">
+          <div>Score: {score}</div>
+          <div>Total Score: {totalscore}</div>
+          <div>Level: {level}</div>
+          <div>{this.gameOver()}</div>
+        </div>
         <div className="game-board">
           <Board
             squares={this.state.squares}
             gameBoard={this.state.gameBoard}
             onClick={i => this.handleClick(i)}
           />
-        </div>
-        <div className="game-info">
-          <div>{status}</div>
         </div>
       </div>
     );

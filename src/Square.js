@@ -12,13 +12,13 @@ function Square(props) {
   } else if (props.value === 0) {
       return (
       <th className="square">
-        <img src={voltorbimg} alt="square" onClick={props.onClick}/>
+        <img src={voltorbimg} alt="square"/>
       </th>
     );
   } else {
     return (
       <th className="square">
-      <div className="numberSquare">
+      <div className="number-square">
       {props.value}
       </div>
       </th>

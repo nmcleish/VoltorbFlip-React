@@ -25,7 +25,7 @@ class Board extends React.Component {
   render() {
     return (
       <div  className="gameboard">
-        <table className="gameboardtable">
+        <table className="gameboard-table">
           <tbody>
             <tr className="board-row-0">
               {this.renderSquare(0)}

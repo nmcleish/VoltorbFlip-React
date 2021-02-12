@@ -53,13 +53,13 @@ html {background-color: #282c34}
   width: 60px;   
 }
 
-.gameboardtable {
+.gameboard-table {
     margin-left: auto;
     margin-right: auto;
     text-align: center;
 }
 
-.numberSquare {
+.number-square {
   background-color: lightpink;
   height: 60px;
   width: 60px;
@@ -67,9 +67,9 @@ html {background-color: #282c34}
   line-height: 60px;  
 }
 
-.legendSquare {
+.legend-square {
   background-color: lightpink;
-  font-size: calc(2px + 2vmin);
+  font-size: 4;
   color: black;
   height: 60px;
   width: 60px;
@@ -82,4 +82,8 @@ html {background-color: #282c34}
   margin-left: 25%;
   margin-right: 25%;
   text-align: left;
+}
+
+.game-info {
+  color: white;
 }
